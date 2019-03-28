@@ -1,0 +1,78 @@
+::StoryTitle
+Basic Story
+
+
+::StoryIFID[twee2]
+Twee2::build_config.story_ifid = 'f5eb5436-4a06-4e60-921f-1ffc0bed790c'
+Twee2::build_config.story_format = 'Snowman'
+
+
+::JS [script]
+window.setup = window.setup = {};
+
+setup.roll1d6 = () => _.random(1,6);
+
+setup.prepare = (s) => {
+  s.inventory = [];
+  s.skill = setup.roll1d6() + 6;
+  s.stamina = setup.roll1d6() + setup.roll1d6() + 12;
+  s.luck = setup.roll1d6() + 6;
+}
+
+setup.testSkill = (s) => {
+  const v = setup.roll1d6() + setup.roll1d6();
+  return v <= s.skill;
+}
+
+setup.testLuck = (s) => {
+  const v = setup.roll1d6();
+  return v <= s.luck;
+}
+
+setup.fight = () => {
+  alert('TODO: fight');
+}
+
+
+:: UserStylesheet[stylesheet]
+body {  }
+
+
+::Header
+**Skill**: <%= s.skill %> | **Stamina**: <%= s.stamina %> | **Luck**: <%= s.luck %>
+
+**Inventory**: <%= s.inventory.join(',') %>
+
+
+::Start
+### Basic Story
+
+<%
+setup.prepare(s);
+%>
+
+<%= story.render('Header') %>
+
+Basic intro blah blah
+
+[[Left Door->Left]] [[Right Door->Right]]
+
+
+::Left
+Left - Luck
+
+<% setup.tmp = () => { alert( setup.testLuck(s) ? 'lucky' : 'unlucky' ) } %>
+
+<button onclick="setup.tmp()">Test your luck</button>
+
+[[Back->Start]]
+
+
+::Right
+Right - Fight TODO
+
+<% setup.tmp = () => { setup.fight() } %>
+
+<button onclick="setup.tmp()">Fight</button>
+
+[[Back->Start]]
