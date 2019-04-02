@@ -2,19 +2,20 @@
 
 ## purpose
 
-a fighting fantasy twee2 story
+Adapt a fighting fantasy story using twee2.
 
-## setup
+All writing credits of this adapted adventure - The Sleeping Dragon belong to the original author, Tammy Badowski.
+
+## setup (on windows)
 
     choco install ruby
     gem install twee2
 
 ## usage
 
-    twee2 build/watch basic.tw2 basic-html
+    twee2 build/watch TheSleepingDragon.tw2 TheSleepingDragon.html
 
 ## TODO LIST
 
-- fighting
-- conditional destinations/actions
-- pick, use inventory item
+- keep adapting passages until the whole thing works
+- streamline the templating as the story progresses?
