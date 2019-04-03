@@ -1,5 +1,5 @@
 ::StoryTitle
-The Sleeping Dragon by Tammy Badowski
+The Sleeping Dragon by Tammy Badowskixx
 
 
 ::Configuration [twee2]
@@ -38,32 +38,13 @@ body { }
 
 
 ::Start
-<% setup.prepare(s) %>
-
+<% setup.prepare(s); window.s = window.story.state; %>
 <%
-window.f1 = () => {
-  s.wasLucky = setup.testLuck(s);
-  setup.refresh();
-}
-
-window.f2 = (ev) => {
-  setup.fight(s, [{name:'Jaguar', skill:7, stamina:6}], ev);
-  setup.refresh();
-}
-
-window.f3 = () => {
-  setup.take(s, 'item');
-  setup.refresh();
-}
-
-window.f4 = () => {
-  setup.drop(s, 'item');
-  setup.refresh();
-}
+  setup.prepareFight(s, [{name:'Jaguar', skill:7, stamina:6}], {escape:false});
 %>
 
 <% if (s.wasLucky === undefined) { %>
-<a onclick="f1()">test luck</a>
+<a onclick="setup.testLuck(s)">test luck</a>
 <% } else if (s.wasLucky) { %>
   lucky
 <% } else { %>
@@ -71,15 +52,15 @@ window.f4 = () => {
 <% } %>
 
 <% if (!setup.has(s, 'item')) { %>
-<a onclick="f3()">take item</a>
+<a onclick="setup.take(s, 'item')">take item</a>
 <% } else { %>
-<a onclick="f4()">drop item</a>
+<a onclick="setup.drop(s, 'item')">drop item</a>
 <% } %>
 
 <% if (setup.defeated(s, 'Jaguar')) { %>
   <a onclick="window.story.show('XStart')">Effectively start the adventure...</a>
 <% } else { %>
-  <a onclick="f2()">fight Jaguar</a>
+  <%= setup.renderFightRound(s) %>
 <% } %>
 
 ::XStart

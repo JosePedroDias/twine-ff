@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>
-The Sleeping Dragon by Tammy Badowski
+The Sleeping Dragon by Tammy Badowskixx
 </title>
 <meta charset="utf-8">
 <style>a,body{color:#222}body{font:18px "Helvetica Neue",Helvetica,Arial,sans-serif}#passage{max-width:38em;margin:0 auto;line-height:145%}a{text-decoration:none;border-bottom:2px solid #bbb}a:hover{color:#cc8929;border-color:#cc8929}a:active{color:#ffb040;border-color:#ffb040}tw-storydata{display:none}@media screen and (max-device-width:480px){#passage{font-size:70%}}</style>
@@ -10,7 +10,7 @@ The Sleeping Dragon by Tammy Badowski
 <body>
 <div id="passage"></div>
 
-<tw-storydata name="The Sleeping Dragon by Tammy Badowski" startnode="2" creator="Twee2" creator-version="0.5.0" ifid="23323312-EDA6-4786-92B6-B3AD8DA5C754" format="Snowman" options=""><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body { }
+<tw-storydata name="The Sleeping Dragon by Tammy Badowskixx" startnode="2" creator="Twee2" creator-version="0.5.0" ifid="23323312-EDA6-4786-92B6-B3AD8DA5C754" format="Snowman" options=""><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body { }
 
 #sidebar {
   position: fixed;
@@ -46,6 +46,7 @@ The Sleeping Dragon by Tammy Badowski
     s.prepared = true;
   
     s.inventory = [];
+    s._defeated = [];
     s.defeated = [];
   
     s.skill = setup.roll1d6() + 6;
@@ -56,7 +57,9 @@ The Sleeping Dragon by Tammy Badowski
     s.staminaMax = s.stamina;
     s.luckMax = s.luck;
   
-    $(document.createElement('div')).attr('id', 'sidebar').insertBefore('#passage');
+    $(document.createElement('div'))
+      .attr('id', 'sidebar')
+      .insertBefore('#passage');
   
     function afterShowPassage() {
       $('#sidebar').html(window.story.render('Header'));
@@ -74,12 +77,15 @@ The Sleeping Dragon by Tammy Badowski
   
   setup.testLuck = (s) => {
     const v = setup.roll1d6();
-    return v <= s.luck;
+    s.wasLucky = v <= s.luck;
+    setup.refresh();
+    return s.wasLucky;
   };
   
   setup.take = (s, item) => {
     s.inventory.push(item);
     setup.updateStats();
+    setup.refresh();
   };
   
   setup.has = (s, item) => {
@@ -89,86 +95,106 @@ The Sleeping Dragon by Tammy Badowski
   setup.drop = (s, item) => {
     s.inventory = s.inventory.filter((it) => it !== item);
     setup.updateStats();
+    setup.refresh();
   };
   
   setup.defeated = (s, enemyName, i = 0) => {
     const enemy = s.defeated[s.defeated.length - 1 - i];
     return enemy === enemyName;
-  }
+  };
   
   setup.now = () => {
     const st = window.story;
-    return st.passages[ st.history[st.history.length -1] ].name;
-  }
+    return st.passages[st.history[st.history.length - 1]].name;
+  };
   
   setup.refresh = () => {
-    window.story.show( setup.now() );
-  }
+    window.story.show(setup.now());
+  };
   
-  setup.fight = (s, enemies) => {
-    function round() {
+  setup.prepareFight = (s, enemies, config = {}) => {
+    if (s.fight) {
+      return;
+    }
+    if (setup.defeated(s, enemies[0].name)) {
+      return;
+    }
+    s.fight = { enemies, ...config };
+  };
+  
+  setup.renderFightRound = (s) => {
+    if (s.fight.started) {
+      return (
+        s.fight.output.join('<br/>') +
+        s.fight.actions
+          .map((act) => `<a onclick="setup.fightRound(s, '${act}')">${act}</a>`)
+          .join(' ')
+      );
+    } else {
+      return '<a onclick="setup.fightRound(s)">fight</a>';
+    }
+  };
+  
+  setup.fightRound = (s, action) => {
+    const f = s.fight;
+  
+    function log(msg) {
+      msg = msg.replace(/>/g, '&gt;');
+      f.output.push(msg);
+    }
+  
+    function round(enemy) {
       const enemyAttackStrength = setup.roll2d6() + enemy.skill;
       const ourAttackStrength = setup.roll2d6() + s.skill;
-      const attacks = 'enemy:' + enemyAttackStrength + ', we:' + ourAttackStrength;
+      const attacks =
+        'enemy:' + enemyAttackStrength + ', we:' + ourAttackStrength;
       if (ourAttackStrength > enemyAttackStrength) {
-        console.log(`  ${attacks} -> you wounded the enemy`);
+        log(`  ${attacks} -> you wounded the enemy`);
         enemy.stamina -= 2;
-      }
-      else if (enemyAttackStrength > ourAttackStrength) {
-        console.log(`  ${attacks} -> the enemy wounded you`);
+      } else if (enemyAttackStrength > ourAttackStrength) {
+        log(`  ${attacks} -> the enemy wounded you`);
         s.stamina -= 2;
-      }
-      else {
-        console.log(`  ${attacks} -> draw`);
+      } else {
+        log(`  ${attacks} -> draw`);
       }
       setup.updateStats();
       if (s.stamina <= 0) {
-        window.alert('game over');
-        throw 'you died';
+        log('game over');
       }
   
       if (enemy.stamina > 0) {
-        round();
+        round(enemy);
       } else {
-        console.log(enemy.name + ' died')
-        s.defeated.push(enemy.name);
+        log(enemy.name + ' died');
+        s._defeated.push(enemy.name);
+        f.actions.push('continue');
       }
     }
   
-    let enemy;
-    while (enemy = enemies.shift()) {
-      console.log('fighting ' + enemy.name);
-      round();
+    f.actions = [];
+    if (!f.started) {
+      f.output = [];
+      f.started = true;
+      f.enemy = f.enemies.shift();
+      log(`fighting ${f.enemy.name}`);
+      round(f.enemy);
+    } else if (action === 'continue') {
+      s.defeated = s._defeated;
+      s.fight = undefined;
+    } else {
+      log('?!');
     }
+    setup.refresh();
   };
 </script><tw-passagedata pid="1" name="Header" tags="" position="">**Skill**: &lt;%= s.skill %&gt; | **Stamina**: &lt;%= s.stamina %&gt; | **Luck**: &lt;%= s.luck %&gt;
 
-**Inventory**: &lt;%= s.inventory.join(',') %&gt;</tw-passagedata><tw-passagedata pid="2" name="Start" tags="" position="">&lt;% setup.prepare(s) %&gt;
-
+**Inventory**: &lt;%= s.inventory.join(',') %&gt;</tw-passagedata><tw-passagedata pid="2" name="Start" tags="" position="">&lt;% setup.prepare(s); window.s = window.story.state; %&gt;
 &lt;%
-window.f1 = () =&gt; {
-  s.wasLucky = setup.testLuck(s);
-  setup.refresh();
-}
-
-window.f2 = (ev) =&gt; {
-  setup.fight(s, [{name:'Jaguar', skill:7, stamina:6}], ev);
-  setup.refresh();
-}
-
-window.f3 = () =&gt; {
-  setup.take(s, 'item');
-  setup.refresh();
-}
-
-window.f4 = () =&gt; {
-  setup.drop(s, 'item');
-  setup.refresh();
-}
+  setup.prepareFight(s, [{name:'Jaguar', skill:7, stamina:6}], {escape:false});
 %&gt;
 
 &lt;% if (s.wasLucky === undefined) { %&gt;
-&lt;a onclick="f1()"&gt;test luck&lt;/a&gt;
+&lt;a onclick="setup.testLuck(s)"&gt;test luck&lt;/a&gt;
 &lt;% } else if (s.wasLucky) { %&gt;
   lucky
 &lt;% } else { %&gt;
@@ -176,15 +202,15 @@ window.f4 = () =&gt; {
 &lt;% } %&gt;
 
 &lt;% if (!setup.has(s, 'item')) { %&gt;
-&lt;a onclick="f3()"&gt;take item&lt;/a&gt;
+&lt;a onclick="setup.take(s, 'item')"&gt;take item&lt;/a&gt;
 &lt;% } else { %&gt;
-&lt;a onclick="f4()"&gt;drop item&lt;/a&gt;
+&lt;a onclick="setup.drop(s, 'item')"&gt;drop item&lt;/a&gt;
 &lt;% } %&gt;
 
 &lt;% if (setup.defeated(s, 'Jaguar')) { %&gt;
   &lt;a onclick="window.story.show('XStart')"&gt;Effectively start the adventure...&lt;/a&gt;
 &lt;% } else { %&gt;
-  &lt;a onclick="f2()"&gt;fight Jaguar&lt;/a&gt;
+  &lt;%= setup.renderFightRound(s) %&gt;
 &lt;% } %&gt;</tw-passagedata><tw-passagedata pid="3" name="XStart" tags="" position="">&lt;% /*setup.prepare(s)*/ %&gt;
 
 BACKGROUND

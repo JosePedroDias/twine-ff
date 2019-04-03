@@ -13,7 +13,8 @@ All writing credits of this adapted adventure - The Sleeping Dragon belong to th
 
 ## usage
 
-    twee2 build/watch TheSleepingDragon.tw2 TheSleepingDragon.html
+    twee2 build TheSleepingDragon.tw2 TheSleepingDragon.html
+    twee2 watch TheSleepingDragon.tw2 TheSleepingDragon.html
 
 ## TODO LIST
 
