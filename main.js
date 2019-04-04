@@ -23,6 +23,7 @@ setup.prepare = (s) => {
   s.skill = setup.roll1d6() + 6;
   s.stamina = setup.roll2d6() + 12;
   s.luck = setup.roll1d6() + 6;
+  s.provisions = 10;
 
   s.skillMax = s.skill;
   s.staminaMax = s.stamina;
@@ -54,6 +55,9 @@ setup.testLuck = (s) => {
 };
 
 setup.take = (s, item) => {
+  if (setup.has(s, item)) {
+    return;
+  }
   s.inventory.push(item);
   setup.updateStats();
   setup.refresh();
@@ -64,7 +68,24 @@ setup.has = (s, item) => {
 };
 
 setup.drop = (s, item) => {
+  if (!setup.has(s, item)) {
+    return;
+  }
   s.inventory = s.inventory.filter((it) => it !== item);
+  setup.updateStats();
+  setup.refresh();
+};
+
+setup.decrease = (s, attr, n = 1) => {
+  if (s[attr] < n) {
+    return;
+  }
+  s[attr] -= n;
+
+  if (attr === 'provisions') {
+    s.stamina = Math.min(s.staminaMax, s.stamina + n * 4);
+  }
+
   setup.updateStats();
   setup.refresh();
 };

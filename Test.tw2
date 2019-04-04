@@ -1,0 +1,66 @@
+::StoryTitle
+TEST
+
+
+::Configuration [twee2]
+Twee2::build_config.story_format = 'Snowman'
+
+
+::JS [script]
+  ::@include main.js
+
+
+:: UserStylesheet[stylesheet]
+
+body { }
+
+#sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.66);
+  overflow: visible;
+}
+
+#passage a {
+  background-color: #DDD;
+}
+
+.hidden {
+  display: none;
+}
+
+::Header
+**Skill**: <%= s.skill %> | **Stamina**: <%= s.stamina %> | **Luck**: <%= s.luck %>
+
+**Inventory**: <%= s.inventory.join(',') %>
+
+::Start
+<% setup.prepare(s); window.s = window.story.state; %>
+<%
+  setup.prepareFight(s, [{name:'Jaguar', skill:7, stamina:6}], {escape:false});
+%>
+
+<% if (s.wasLucky === undefined) { %>
+<a onclick="setup.testLuck(s)">test luck</a>
+<% } else if (s.wasLucky) { %>
+  lucky
+<% } else { %>
+  unlucky
+<% } %>
+
+<% if (!setup.has(s, 'item')) { %>
+<a onclick="setup.take(s, 'item')">take item</a>
+<% } else { %>
+<a onclick="setup.drop(s, 'item')">drop item</a>
+<% } %>
+
+<% if (setup.defeated(s, 'Jaguar')) { %>
+  <a onclick="window.story.show('1')">Effectively start the adventure...</a>
+  [[Effectively start the adventure...->1]]
+<% } else { %>
+  <%= setup.renderFightRound(s) %>
+<% } %>
+
+::1
+ONE

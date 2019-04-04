@@ -1,0 +1,120 @@
+digraph {
+  Start -> 1 [label="turn"]
+
+  1 -> 50 [label="turn"]
+
+  50 -> 18 [label="first", style="stroke:red"]
+  50 -> 90 [label="second"]
+  50 -> 33 [label="third"]
+  50 -> 79 [label="forth", style="stroke:red"]
+  50 -> 36 [label="fifth"]
+  50 -> 87 [label="sixth"]
+  50 -> 20 [label="seventh"]
+  50 -> 40 [label="none"]
+
+  90 -> 18 [label="first", style="stroke:red"]
+  90 -> 33 [label="third"]
+  90 -> 79 [label="forth", style="stroke:red"]
+  90 -> 36 [label="fifth"]
+  90 -> 87 [label="sixth"]
+  90 -> 20 [label="seventh"]
+  90 -> 40 [label="none"]
+
+  33 -> 18 [label="first", style="stroke:red"]
+  33 -> 90 [label="second"]
+  33 -> 79 [label="forth", style="stroke:red"]
+  33 -> 36 [label="fifth"]
+  33 -> 87 [label="sixth"]
+  33 -> 20 [label="seventh"]
+  33 -> 40 [label="none"]
+
+  36 -> 18 [label="first", style="stroke:red"]
+  36 -> 90 [label="second"]
+  36 -> 33 [label="third"]
+  36 -> 79 [label="forth", style="stroke:red"]
+  36 -> 87 [label="sixth"]
+  36 -> 20 [label="seventh"]
+  36 -> 40 [label="none"]
+
+
+  87 -> 18 [label="first", style="stroke:red"]
+  87 -> 90 [label="second"]
+  87 -> 33 [label="third"]
+  87 -> 79 [label="forth", style="stroke:red"]
+  87 -> 36 [label="fifth"]
+  87 -> 20 [label="seventh"]
+  87 -> 40 [label="none"]
+
+  20 -> 18 [label="first", style="stroke:red"]
+  20 -> 90 [label="second"]
+  20 -> 33 [label="third"]
+  20 -> 79 [label="forth", style="stroke:red"]
+  20 -> 36 [label="fifth"]
+  20 -> 87 [label="sixth"]
+  20 -> 40 [label="none"]
+
+  40 -> 10 [label="spider"]
+  40 -> 26 [label="centipede"]
+  40 -> 62 [label="butterfly"]
+  40 -> 99 [label="triangle"]
+  40 -> 50 [label="back"]
+
+  10 -> 44 [label="centipede"]
+  10 -> 75 [label="butterfly"]
+  10 -> 98 [label="triangle"]
+
+  26 -> 58 [label="spider"]
+  26 -> 2 [label="butterfly"]
+  26 -> 14 [label="triangle"]
+
+  62 -> 66 [label="spider"]
+  62 -> 23 [label="centipede"]
+  62 -> 6 [label="triangle"]
+
+  99 -> 93 [label="spider"]
+  99 -> 54 [label="centipede"]
+  99 -> 30 [label="butterfly"]
+
+  44 -> 40 [label="incorrect", style="stroke:orange"]
+  75 -> 40 [label="incorrect", style="stroke:orange"]
+  98 -> 40 [label="incorrect", style="stroke:orange"]
+  58 -> 40 [label="incorrect", style="stroke:orange"]
+  2 -> 40 [label="incorrect", style="stroke:orange"]
+  14 -> 40 [label="incorrect", style="stroke:orange"]
+  66 -> 40 [label="incorrect", style="stroke:orange"]
+  23 -> 40 [label="incorrect", style="stroke:orange"]
+  6 -> 40 [label="incorrect", style="stroke:orange"]
+  93 -> 99 [label="incorrect", style="stroke:orange"]
+  54 -> 99 [label="incorrect", style="stroke:orange"]
+
+  30 -> 57 [label="spider"]
+  30 -> 94 [label="centipede"]
+
+  57 -> 40 [label="incorrect", style="stroke:orange"]
+  94 -> 4 [label="turn"]
+
+  4 -> 47 [label="B", style="stroke:red"]
+  4 -> 83 [label="R", style="stroke:red"]
+  4 -> 67
+  4
+
+  67 -> 55
+
+  55 -> 7 [label="left"]
+  55 -> 71 [label="passageway"]
+
+  7 -> 73 [label="west door"]
+  7 -> 82 [label="east door"]
+  7 -> 15 [label="north door"]
+  7 -> 55 [label="main door"]
+
+  71 -> TODO
+  71 -> 55 [label="back"]
+
+  1 [label="1 jaguar", style="fill:#A77"]
+
+  90 [label="90 stone#1", style="fill:#7A7"]
+  33 [label="33 stone#7", style="fill:#7A7"]
+  36 [label="36 stone#15", style="fill:#7A7"]
+  20 [label="20 stone#18", style="fill:#7A7"]
+}
