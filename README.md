@@ -8,7 +8,7 @@ The API is briefly described in [API.md](API.md). A smaller twine example can be
 
 All writing credits of the original adventure - The Sleeping Dragon - belong to the original author, Tammy Badowski. I adapted the book from [here](http://www.ffproject.com/download.htm). 🙇‍
 
-If you lose yourself, take a peek at the graph I'm annotating as I adapt the book [here](graph.html).
+If you lose yourself, take a peek at the graph I'm annotating as I adapt the book [here](https://josepedrodias.github.io/twine-ff/graph.html).
 
 ## setting up twee2 (on windows)
 
