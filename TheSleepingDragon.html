@@ -27,9 +27,39 @@ The Sleeping Dragon by Tammy Badowski
 .hidden {
   display: none;
 }
+
+#currentPassage {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  width: 10em;
+}
 </style><script role="script" id="twine-user-script" type="text/twine-javascript">/*
   https://twinery.org/cookbook/
-  https://dan-q.github.io/twee2/documentation.html
+  
+  window
+    store
+      name - story name
+      author - author name
+      history - array of passage ids visited
+      passages - object with passage objects indexed by id
+      startPassage - starting passage id
+      state - story context (exposed as window.s by twine-ff.js itself for convenience)
+      userScripts - array of JS code
+      userStyles - array of CSS code
+  
+      start() - to run story
+      show(passageName) - to move to given passage
+      render(passageName) - to get given passage markup
+  
+      save() - save context to hash
+      restore() - restore context from hash
+  
+  Snowman basics:
+    [[label->passageName]]
+    <% escape JS code %>
+    <%= return value from JS %>
   */
   
   window.setup = window.setup || {};
@@ -63,7 +93,23 @@ The Sleeping Dragon by Tammy Badowski
     const passageEl = document.querySelector('#passage');
     passageEl.parentElement.insertBefore(sidebarEl, passageEl);
   
-    window.addEventListener('showpassage:after', setup.updateStats);
+    const DEBUG = true;
+  
+    if (DEBUG) {
+      const currentPassageEl = document.createElement('input');
+      currentPassageEl.id = 'currentPassage';
+      document.body.appendChild(currentPassageEl);
+      currentPassageEl.addEventListener('change', () => {
+        window.story.show(currentPassageEl.value);
+      });
+    }
+  
+    $(window).on('showpassage:after', () => {
+      console.log('passage: ', window.setup.now());
+      if (DEBUG) {
+        document.querySelector('#currentPassage').value = window.setup.now();
+      }
+    });
     setup.updateStats();
   };
   
