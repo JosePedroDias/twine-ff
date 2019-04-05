@@ -8,7 +8,7 @@ Twee2::build_config.story_format = 'Snowman'
 
 
 ::JS [script]
-  ::@include main.js
+  ::@include twine-ff.js
 
 
 :: UserStylesheet[stylesheet]
@@ -167,6 +167,10 @@ The triangle ? [[Turn to 98->98]].
 ::11
 You come to a square shaped room. In each corner of the room are metal statues of dragons. Each has its mouth open. You are meant to place something in their mouth. Do you possess 4 STONE BALLS? If you do, turn to 46. If you do not then the ceiling starts to lower. You try the door you just came through and find no handle on it. There is no escaping this place.
 
+<% if (setup.has(s, '4 Stone Balls')) { %>
+  [[Turn to 46->46]]
+<% } %>
+
 
 ::12
 The passage is infested with mushrooms growing out of the walls, floor and ceiling. The tunnel bends to the left and comes to a dead end as you are turning around to leave the mushrooms spew out a dull green mist. You hold your breath but it stings your eyes. You fall to the floor. Roll two dice to determine your score. Roll the dice again and compare to your score. If the result was equal to or lower than your score you succeed in getting out of there, turn to 82. If the result exceeded your score, turn to 64.
@@ -234,11 +238,30 @@ Ignore them and carry on, turn to 31.
 
 
 ::22
+<%
+  setup.prepareFight(s, [{name:'Tower of Strength', skill:10, stamina:8}]);
+%>
+
 You walk through the doorway and into a circular room. There is a very large creature created out of stone in the centre of the room. Half of his body is submerged into the floor. You notice a black key in its left grasp. You try to pry the key free but find you cannot. There are four stone balls scattered on the floor. Add 4 STONE BALLS to your list. That is depending if you survive what's to come. There is a loud groan and the creature comes to life; it starts moving its arms. It moans deafeningly causing dirt to fall down. It plans to pound you with its massive fists and bury you alive down here. You must fight it, for it carries the Ebony Key you need to get out of this place.
 
-TOWER OF STRENGTH SKILL 10 STAMINA 8 
+<% setup.take(s, '4 Stone Balls') %>
+
+<pre>
++-------------------+----------+-----------+
+| TOWER OF STRENGTH | SKILL 10 | STAMINA 8 |
++-------------------+----------+-----------+
+</pre>
+
+<% if (!setup.defeated(s, 'Tower of Strength')) { %>
+  <%= setup.renderFightRound(s) %>
+<% } %>
 
 If you defeat this thing its left hand crumbles and you are free to take the EBONY KEY, when you are asked to use this particular key turn to #11. Other than that, you flee as the ceiling collapses. You run out into the corridor. Return to 7.
+
+<% if (setup.defeated(s, 'Tower of Strength') { %>
+  <% setup.take(s, 'Ebony Key') %>
+  [[Return to 7->7]]
+<% } %>
 
 
 ::23
@@ -439,11 +462,31 @@ Add 4 to your stamina. It's water! But as quickly as you drank some of it, it ev
 
 
 ::53
+<%
+  setup.prepareFight(s, [{name:'Skeleton', skill:8, stamina:4}]);
+%>
+
 When you open the door, you expect to see some grisly sight but instead see a skeleton dressed in plate armour resting against the wall, as you step into the room it gets to his bony feet and lurches in your direction to attack you.
 
-SKELETON SKILL 8 STAMINA 4 
+<pre>
++----------+---------+-----------+
+| SKELETON | SKILL 8 | STAMINA 4 |
++----------+---------+-----------+
+</pre>
 
-If you win against this foe, you find nothing in this room. To try the second door that has two scratch marks upon it, turn to 84. The third has only a circle on it, to open this door, turn to 68. To ignore the doors (or if you"ve already investigated them) you hurry on, turn to 51.
+<% if (!setup.defeated(s, 'Skeleton')) { %>
+  <%= setup.renderFightRound(s) %>
+<% } %>
+
+If you win against this foe, you find nothing in this room. To try the second door that has two scratch marks upon it, turn to 84. The third has only a circle on it, to open this door, turn to 68. To ignore the doors (or if you've already investigated them) you hurry on, turn to 51.
+
+<% if (setup.defeated(s, 'Skeleton') { %>
+  [[Second door with scratch marks->84]]
+
+  [[Third door with circle->68]]
+
+  [[Ignore doors->51]]
+<% } %>
 
 
 ::54
@@ -534,7 +577,11 @@ If you are done in this section you may return to 73.
 
 ::71
 This door is locked and requires a special Ebony Key to open it, if you have this key then turn to the number embossed on it.
-<% /*TODO if ebony key go */ %>
+
+<% if (setup.has(s, 'Ebony Key')) { %>
+  [[Turn to 11->11]]
+<% } %>
+
 Otherwise, no amount of banging into the door with your shoulder is going to work. You cannot break it down.
 [[Return to 55->55]].
 
@@ -675,25 +722,56 @@ You walk over to the centipede and press on it, it goes into the wall. You see t
 
 
 ::95
+<%
+  setup.prepareFight(s, [{name:'Mummy', skill:9, stamina:6}]);
+%>
 You open the door and enter a circular room. The dirt littering the floor is soft and loose. As you step ahead, a body bursts through the floor! It has rotten strips of cloth wrapped around its entire body. You can see its blackened mouth and darkened teeth. It claws its way out of the dirt and stands up. You half expect it to run for you but all it does is lift its claws and staggers in your direction rather slowly.
 
-MUMMY SKILL 9 STAMINA 6 
+<pre>
++-------+---------+-----------+
+| MUMMY | SKILL 9 | STAMINA 6 |
++-------+---------+-----------+
+</pre>
+
+<% if (!setup.defeated(s, 'Mummy')) { %>
+  <%= setup.renderFightRound(s) %>
+<% } %>
 
 If you win, you find nothing else of interest in this room. You may leave by the south door and turn immediately right at the junction (turn to 17) or you can exit via the north door (turn to 43)?
 
+<% if (setup.defeated(s, 'Mummy') { %>
+  [[South door->17]]
+
+  [[North door->43]]
+<% } %>
 
 ::96
 The dark passage snakes to the right. You come to an image in the dead end of a majestic golden sun with bright rays all around it. It opens it eyes and stares at you. It blinks a few times. Will you ask it for advice (turn to 49) or return to the main room (turn to 82)?
 
 
 ::97
+<%
+  setup.prepareFight(s, [{name:'Temple Guardian', skill:12, stamina:14}]);
+%>
 This creature is made of a solid metal, and your sword will hardly do any damage. But you must knock the six swords from its grasp one at a time. 
 
-TEMPLE GUARDIAN SKILL 12 STAMINA 14 
+<pre>
++-----------------+----------+------------+
+| TEMPLE GUARDIAN | SKILL 12 | STAMINA 14 |
++-----------------+----------+------------+
+</pre>
+
+<% if (!setup.defeated(s, 'Temple Guardian')) { %>
+  <%= setup.renderFightRound(s) %>
+<% } %>
 
 Each time you win a round you have severed a sword. If it hits you just once it knocks you across the room causing you to lose 8 stamina points.
 
 If you win this battle, turn to 59.
+
+<% if (setup.defeated(s, 'Temple Guardian') { %>
+  [[Turn to 59->59]]
+<% } %>
 
 
 ::98

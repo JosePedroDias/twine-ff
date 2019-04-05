@@ -1,22 +1,31 @@
-# FF-Twee2
+# Twine Fighting Fantasy
 
 ## purpose
 
-Adapt a fighting fantasy story using twee2.
+To be able to adapt fighting fantasy stories or create new ones using twine. I'm using [twee2](https://dan-q.github.io/twee2/) and [Snowman](https://twinery.org/cookbook/terms/terms_storyformats.html#snowman) for the purposes of the book adaptation. The utility belt I created is [twine-ff.js](twine-ff.js), which should work just fine with other [twine-related engines](http://twinery.org/).
 
-All writing credits of this adapted adventure - The Sleeping Dragon belong to the original author, Tammy Badowski.
+The API is briefly described in [API.md](API.md). A smaller twine example can be found in [Test.tw2](Test.tw2), but may be outdated. Refer to [TheSleepingDragon.tw2](TheSleepingDragon.tw2) for the book code.
 
-## setup (on windows)
+All writing credits of the original adventure - The Sleeping Dragon - belong to the original author, Tammy Badowski. I adapted the book from [here](http://www.ffproject.com/download.htm). 🙇‍
+
+If you lose yourself, take a peek at the graph I'm annotating as I adapt the book [here](graph.html).
+
+## setting up twee2 (on windows)
 
     choco install ruby
     gem install twee2
 
-## usage
+## creating a book w/ twee2
 
     twee2 build TheSleepingDragon.tw2 TheSleepingDragon.html
-    twee2 watch TheSleepingDragon.tw2 TheSleepingDragon.html
+
+Then [visit the resulting HTML](https://josepedrodias.github.io/twine-ff/TheSleepingDragon.html) file.
 
 ## TODO LIST
 
-- keep adapting passages until the whole thing works
-- streamline the templating as the story progresses?
+- for this book
+  - adapt the whole book
+  - finish graphviz graph
+  - test drive the thing
+- later, maybe...
+  - expand fighting to support optional luck tests, escaping and beatemup mode (several foes at the same time)

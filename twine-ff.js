@@ -3,11 +3,11 @@ https://twinery.org/cookbook/
 https://dan-q.github.io/twee2/documentation.html
 */
 
-window.setup = window.setup = {};
+window.setup = window.setup || {};
 
-setup.roll1d6 = () => _.random(1, 6);
+setup.roll1d6 = () => ~~(Math.random() * 6) + 1;
 
-setup.roll2d6 = () => _.random(1, 6) + _.random(1, 6);
+setup.roll2d6 = () => setup.roll1d6() + setup.roll1d6();
 
 setup.prepare = (s) => {
   if (s.prepared) {
@@ -29,22 +29,24 @@ setup.prepare = (s) => {
   s.staminaMax = s.stamina;
   s.luckMax = s.luck;
 
-  $(document.createElement('div'))
-    .attr('id', 'sidebar')
-    .insertBefore('#passage');
+  const sidebarEl = document.createElement('div');
+  sidebarEl.id = 'sidebar';
+  const passageEl = document.querySelector('#passage');
+  passageEl.parentElement.insertBefore(sidebarEl, passageEl);
 
-  function afterShowPassage() {
-    $('#sidebar').html(window.story.render('Header'));
-  }
+  window.addEventListener('showpassage:after', setup.updateStats);
+  setup.updateStats();
+};
 
-  $(window).on('showpassage:after', afterShowPassage);
-  afterShowPassage();
-  setup.updateStats = afterShowPassage;
+setup.updateStats = () => {
+  document.querySelector('#sidebar').innerHTML = window.story.render('Header');
 };
 
 setup.testSkill = (s) => {
   const v = setup.roll1d6() + setup.roll1d6();
-  return v <= s.skill;
+  s.wasSkilled = v <= s.skill;
+  setup.refresh();
+  return s.wasSkilled;
 };
 
 setup.testLuck = (s) => {
@@ -119,15 +121,15 @@ setup.renderFightRound = (s) => {
     return (
       s.fight.output.join('<br/>') +
       s.fight.actions
-        .map((act) => `<a onclick="setup.fightRound(s, '${act}')">${act}</a>`)
+        .map((act) => `<a onclick="setup._fightRound(s, '${act}')">${act}</a>`)
         .join(' ')
     );
   } else {
-    return '<a onclick="setup.fightRound(s)">fight</a>';
+    return '<a onclick="setup._fightRound(s)">fight</a>';
   }
 };
 
-setup.fightRound = (s, action) => {
+setup._fightRound = (s, action) => {
   const f = s.fight;
 
   function log(msg) {

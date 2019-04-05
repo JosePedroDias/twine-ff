@@ -7,7 +7,7 @@ Twee2::build_config.story_format = 'Snowman'
 
 
 ::JS [script]
-  ::@include main.js
+  ::@include twine-ff.js
 
 
 :: UserStylesheet[stylesheet]

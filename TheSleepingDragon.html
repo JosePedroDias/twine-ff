@@ -32,11 +32,11 @@ The Sleeping Dragon by Tammy Badowski
   https://dan-q.github.io/twee2/documentation.html
   */
   
-  window.setup = window.setup = {};
+  window.setup = window.setup || {};
   
-  setup.roll1d6 = () => _.random(1, 6);
+  setup.roll1d6 = () => ~~(Math.random() * 6) + 1;
   
-  setup.roll2d6 = () => _.random(1, 6) + _.random(1, 6);
+  setup.roll2d6 = () => setup.roll1d6() + setup.roll1d6();
   
   setup.prepare = (s) => {
     if (s.prepared) {
@@ -58,22 +58,24 @@ The Sleeping Dragon by Tammy Badowski
     s.staminaMax = s.stamina;
     s.luckMax = s.luck;
   
-    $(document.createElement('div'))
-      .attr('id', 'sidebar')
-      .insertBefore('#passage');
+    const sidebarEl = document.createElement('div');
+    sidebarEl.id = 'sidebar';
+    const passageEl = document.querySelector('#passage');
+    passageEl.parentElement.insertBefore(sidebarEl, passageEl);
   
-    function afterShowPassage() {
-      $('#sidebar').html(window.story.render('Header'));
-    }
+    window.addEventListener('showpassage:after', setup.updateStats);
+    setup.updateStats();
+  };
   
-    $(window).on('showpassage:after', afterShowPassage);
-    afterShowPassage();
-    setup.updateStats = afterShowPassage;
+  setup.updateStats = () => {
+    document.querySelector('#sidebar').innerHTML = window.story.render('Header');
   };
   
   setup.testSkill = (s) => {
     const v = setup.roll1d6() + setup.roll1d6();
-    return v <= s.skill;
+    s.wasSkilled = v <= s.skill;
+    setup.refresh();
+    return s.wasSkilled;
   };
   
   setup.testLuck = (s) => {
@@ -148,15 +150,15 @@ The Sleeping Dragon by Tammy Badowski
       return (
         s.fight.output.join('<br/>') +
         s.fight.actions
-          .map((act) => `<a onclick="setup.fightRound(s, '${act}')">${act}</a>`)
+          .map((act) => `<a onclick="setup._fightRound(s, '${act}')">${act}</a>`)
           .join(' ')
       );
     } else {
-      return '<a onclick="setup.fightRound(s)">fight</a>';
+      return '<a onclick="setup._fightRound(s)">fight</a>';
     }
   };
   
-  setup.fightRound = (s, action) => {
+  setup._fightRound = (s, action) => {
     const f = s.fight;
   
     function log(msg) {
@@ -295,7 +297,11 @@ The centipede ? [[Turn to 44-&gt;44]].
 
 The butterfly ? [[Turn to 75-&gt;75]].
 
-The triangle ? [[Turn to 98-&gt;98]].</tw-passagedata><tw-passagedata pid="13" name="11" tags="" position="">You come to a square shaped room. In each corner of the room are metal statues of dragons. Each has its mouth open. You are meant to place something in their mouth. Do you possess 4 STONE BALLS? If you do, turn to 46. If you do not then the ceiling starts to lower. You try the door you just came through and find no handle on it. There is no escaping this place.</tw-passagedata><tw-passagedata pid="14" name="12" tags="" position="">The passage is infested with mushrooms growing out of the walls, floor and ceiling. The tunnel bends to the left and comes to a dead end as you are turning around to leave the mushrooms spew out a dull green mist. You hold your breath but it stings your eyes. You fall to the floor. Roll two dice to determine your score. Roll the dice again and compare to your score. If the result was equal to or lower than your score you succeed in getting out of there, turn to 82. If the result exceeded your score, turn to 64.</tw-passagedata><tw-passagedata pid="15" name="13" tags="" position="">You never thought this would come to pass but it has. You hear laughter all around you. It gets so loud that you have to cover your ears. You feel like you might be crying and when you go to wipe the tear away it turns out to be blood. You are bleeding from your eyes! The blood doesn't stop and soon you bleed to death. You have succumbed to some ancient tribal curse.</tw-passagedata><tw-passagedata pid="16" name="14" tags="" position="">You walk over to the triangle and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The centipede one has come out of the wall, and then seconds later the triangle comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="17" name="15" tags="" position="">You come to a 3-way junction. To go west (turn to 17) to go east (turn to 21) or to go straight north (turn to 27)?</tw-passagedata><tw-passagedata pid="18" name="16" tags="" position="">There are candles lit in this area, but upon closer inspection you find the candles are magical. They light up an alter depicting a strange looking idol made out of twigs. There are offerings of jade and resin. The eyes of the idol open and look directly at you. Test your luck, if you are lucky you avoid its gaze and it closes its eyes. If you were unlucky, add the word CURSE to your notes. It lets out a cute but wicked chuckle.
+The triangle ? [[Turn to 98-&gt;98]].</tw-passagedata><tw-passagedata pid="13" name="11" tags="" position="">You come to a square shaped room. In each corner of the room are metal statues of dragons. Each has its mouth open. You are meant to place something in their mouth. Do you possess 4 STONE BALLS? If you do, turn to 46. If you do not then the ceiling starts to lower. You try the door you just came through and find no handle on it. There is no escaping this place.
+
+&lt;% if (setup.has(s, '4 Stone Balls')) { %&gt;
+  [[Turn to 46-&gt;46]]
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="14" name="12" tags="" position="">The passage is infested with mushrooms growing out of the walls, floor and ceiling. The tunnel bends to the left and comes to a dead end as you are turning around to leave the mushrooms spew out a dull green mist. You hold your breath but it stings your eyes. You fall to the floor. Roll two dice to determine your score. Roll the dice again and compare to your score. If the result was equal to or lower than your score you succeed in getting out of there, turn to 82. If the result exceeded your score, turn to 64.</tw-passagedata><tw-passagedata pid="15" name="13" tags="" position="">You never thought this would come to pass but it has. You hear laughter all around you. It gets so loud that you have to cover your ears. You feel like you might be crying and when you go to wipe the tear away it turns out to be blood. You are bleeding from your eyes! The blood doesn't stop and soon you bleed to death. You have succumbed to some ancient tribal curse.</tw-passagedata><tw-passagedata pid="16" name="14" tags="" position="">You walk over to the triangle and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The centipede one has come out of the wall, and then seconds later the triangle comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="17" name="15" tags="" position="">You come to a 3-way junction. To go west (turn to 17) to go east (turn to 21) or to go straight north (turn to 27)?</tw-passagedata><tw-passagedata pid="18" name="16" tags="" position="">There are candles lit in this area, but upon closer inspection you find the candles are magical. They light up an alter depicting a strange looking idol made out of twigs. There are offerings of jade and resin. The eyes of the idol open and look directly at you. Test your luck, if you are lucky you avoid its gaze and it closes its eyes. If you were unlucky, add the word CURSE to your notes. It lets out a cute but wicked chuckle.
 
 You retrace your steps back to the T-junction and continue onward west. Turn to 28.</tw-passagedata><tw-passagedata pid="19" name="17" tags="" position="">This passageway goes on for some time. Another corridor veers off on the right hand side going north, to take this (turn to 86) to keep going the way you were headed in a westerly direction (turn to 37)?</tw-passagedata><tw-passagedata pid="20" name="18" tags="" position="">The lever goes down easily. Powder explodes from the wall above. It splatters across your face, as you're rubbing it off it starts to burn. You begin to scream as the primitive acid melts your skin and eyeballs. You fall to the ground and soon start trembling and twitching. You don't get up from this. The acid eats away straight to your skull and then to your brain?your adventure ends.</tw-passagedata><tw-passagedata pid="21" name="19" tags="" position="">You take aim and hope It's true because you only got one shot. The arrow embeds itself beneath the golem's chin. Fire blows out of the creature's mouth and then the moving statue freezes in time. It falls over and you have to move out of the way as the stone floor erupts into splinters and dusty debris.
 
@@ -320,11 +326,30 @@ The first one ? Turn to 88.
 The second one ? Turn to 56.
 The third one ? Turn to 39.
 
-Ignore them and carry on, turn to 31.</tw-passagedata><tw-passagedata pid="24" name="22" tags="" position="">You walk through the doorway and into a circular room. There is a very large creature created out of stone in the centre of the room. Half of his body is submerged into the floor. You notice a black key in its left grasp. You try to pry the key free but find you cannot. There are four stone balls scattered on the floor. Add 4 STONE BALLS to your list. That is depending if you survive what's to come. There is a loud groan and the creature comes to life; it starts moving its arms. It moans deafeningly causing dirt to fall down. It plans to pound you with its massive fists and bury you alive down here. You must fight it, for it carries the Ebony Key you need to get out of this place.
+Ignore them and carry on, turn to 31.</tw-passagedata><tw-passagedata pid="24" name="22" tags="" position="">&lt;%
+  setup.prepareFight(s, [{name:'Tower of Strength', skill:10, stamina:8}]);
+%&gt;
 
-TOWER OF STRENGTH SKILL 10 STAMINA 8 
+You walk through the doorway and into a circular room. There is a very large creature created out of stone in the centre of the room. Half of his body is submerged into the floor. You notice a black key in its left grasp. You try to pry the key free but find you cannot. There are four stone balls scattered on the floor. Add 4 STONE BALLS to your list. That is depending if you survive what's to come. There is a loud groan and the creature comes to life; it starts moving its arms. It moans deafeningly causing dirt to fall down. It plans to pound you with its massive fists and bury you alive down here. You must fight it, for it carries the Ebony Key you need to get out of this place.
 
-If you defeat this thing its left hand crumbles and you are free to take the EBONY KEY, when you are asked to use this particular key turn to #11. Other than that, you flee as the ceiling collapses. You run out into the corridor. Return to 7.</tw-passagedata><tw-passagedata pid="25" name="23" tags="" position="">You walk over to the centipede and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The butterfly one has come out of the wall, then seconds later the centipede comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="26" name="24" tags="" position="">You return to the giant statue and stand behind it. You can go straight down the other corridor if you haven't yet (turn to 35) or search the surrounding area in front of the statue (turn to 69)?
+&lt;% setup.take(s, '4 Stone Balls') %&gt;
+
+&lt;pre&gt;
++-------------------+----------+-----------+
+| TOWER OF STRENGTH | SKILL 10 | STAMINA 8 |
++-------------------+----------+-----------+
+&lt;/pre&gt;
+
+&lt;% if (!setup.defeated(s, 'Tower of Strength')) { %&gt;
+  &lt;%= setup.renderFightRound(s) %&gt;
+&lt;% } %&gt;
+
+If you defeat this thing its left hand crumbles and you are free to take the EBONY KEY, when you are asked to use this particular key turn to #11. Other than that, you flee as the ceiling collapses. You run out into the corridor. Return to 7.
+
+&lt;% if (setup.defeated(s, 'Tower of Strength') { %&gt;
+  &lt;% setup.take(s, 'Ebony Key') %&gt;
+  [[Return to 7-&gt;7]]
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="25" name="23" tags="" position="">You walk over to the centipede and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The butterfly one has come out of the wall, then seconds later the centipede comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="26" name="24" tags="" position="">You return to the giant statue and stand behind it. You can go straight down the other corridor if you haven't yet (turn to 35) or search the surrounding area in front of the statue (turn to 69)?
 
 If you"ve done everything return to 5.</tw-passagedata><tw-passagedata pid="27" name="25" tags="" position="">The passage goes on for a short while before turning right then left. You come to a gloomy T-junction. To go east (turn to 16) or to go west (turn to 28).</tw-passagedata><tw-passagedata pid="28" name="26" tags="" position="">You press hard on the centipede slab and hear intently as it slides into the wall. Which one will you activate next?
 
@@ -402,11 +427,31 @@ Sixth ? [[Turn to 87-&gt;87]].
 
 Seventh ? [[Turn to 20-&gt;20]].
 
-If you do not wish to touch the levers you can leave and explore elsewhere, [[turn to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="53" name="51" tags="" position="">A while down you spot a corridor on the right, to take this one which goes east (turn to 63) to continue walking straight ahead north (turn to 48).</tw-passagedata><tw-passagedata pid="54" name="52" tags="" position="">Add 4 to your stamina. It's water! But as quickly as you drank some of it, it evaporates out of the cup. There is nothing else in this place so you return to the main room. Turn to 82.</tw-passagedata><tw-passagedata pid="55" name="53" tags="" position="">When you open the door, you expect to see some grisly sight but instead see a skeleton dressed in plate armour resting against the wall, as you step into the room it gets to his bony feet and lurches in your direction to attack you.
+If you do not wish to touch the levers you can leave and explore elsewhere, [[turn to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="53" name="51" tags="" position="">A while down you spot a corridor on the right, to take this one which goes east (turn to 63) to continue walking straight ahead north (turn to 48).</tw-passagedata><tw-passagedata pid="54" name="52" tags="" position="">Add 4 to your stamina. It's water! But as quickly as you drank some of it, it evaporates out of the cup. There is nothing else in this place so you return to the main room. Turn to 82.</tw-passagedata><tw-passagedata pid="55" name="53" tags="" position="">&lt;%
+  setup.prepareFight(s, [{name:'Skeleton', skill:8, stamina:4}]);
+%&gt;
 
-SKELETON SKILL 8 STAMINA 4 
+When you open the door, you expect to see some grisly sight but instead see a skeleton dressed in plate armour resting against the wall, as you step into the room it gets to his bony feet and lurches in your direction to attack you.
 
-If you win against this foe, you find nothing in this room. To try the second door that has two scratch marks upon it, turn to 84. The third has only a circle on it, to open this door, turn to 68. To ignore the doors (or if you"ve already investigated them) you hurry on, turn to 51.</tw-passagedata><tw-passagedata pid="56" name="54" tags="" position="">You walk over to the centipede and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The triangle one has come out of the wall, then seconds later the centipede comes out. You have chosen the sequence incorrectly. [[Return to 99-&gt;99]].</tw-passagedata><tw-passagedata pid="57" name="55" tags="" position="">You find yourself in a strangely shaped room where there is one door to the left and a curved corridor leading off to the right. There is a door at the end of this passage. The one of the left has a sign MAZE written above it, and the one on the right has a symbol of a pentacle above it. Will you go left ([[turn to 7-&gt;7]]) or try to open the one in the passageway ([[turn to 71-&gt;71]])?</tw-passagedata><tw-passagedata pid="58" name="56" tags="" position="">When you touch the face of the small statue resting in the alcove you feel like you are going to black out. You begin to tremble and even feel severely nauseous. This idol is draining your stamina. Roll two dice and the result you get is the amount you must subtract from your stamina score. Now that you are able to stand back from the alcove what will you do next? Inspect the first one (turn to 88) look over at the third one (turn to 39) or ignore them and rush on (turn to 31)?</tw-passagedata><tw-passagedata pid="59" name="57" tags="" position="">You walk over to the spider and push on it, it goes into the wall. There is a noise behind you and you see the triangle and butterfly come out of place then the spider comes out. You have chosen out of sequence. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="60" name="58" tags="" position="">You walk over to the spider and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The centipede one has come out of the wall, then seconds later the spider comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="61" name="59" tags="" position="">Do you have the word CURSE written in your notes? If so, turn to 13. If not then you are free to turn to 100.</tw-passagedata><tw-passagedata pid="62" name="60" tags="" position="">The door with a cup on it has a short tunnel behind it. You find a giant goblet on the floor filled with a clear liquid: will you drink some (turn to 52) or will you return to the other room (turn to 82)?</tw-passagedata><tw-passagedata pid="63" name="61" tags="" position="">When you prick the doll, you feel a sharp sensation run up your buttock! It hurts so much you can barely stand or walk. Lose 4 stamina points. Which one will you examine now (if any)?
+&lt;pre&gt;
++----------+---------+-----------+
+| SKELETON | SKILL 8 | STAMINA 4 |
++----------+---------+-----------+
+&lt;/pre&gt;
+
+&lt;% if (!setup.defeated(s, 'Skeleton')) { %&gt;
+  &lt;%= setup.renderFightRound(s) %&gt;
+&lt;% } %&gt;
+
+If you win against this foe, you find nothing in this room. To try the second door that has two scratch marks upon it, turn to 84. The third has only a circle on it, to open this door, turn to 68. To ignore the doors (or if you've already investigated them) you hurry on, turn to 51.
+
+&lt;% if (setup.defeated(s, 'Skeleton') { %&gt;
+  [[Second door with scratch marks-&gt;84]]
+
+  [[Third door with circle-&gt;68]]
+
+  [[Ignore doors-&gt;51]]
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="56" name="54" tags="" position="">You walk over to the centipede and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The triangle one has come out of the wall, then seconds later the centipede comes out. You have chosen the sequence incorrectly. [[Return to 99-&gt;99]].</tw-passagedata><tw-passagedata pid="57" name="55" tags="" position="">You find yourself in a strangely shaped room where there is one door to the left and a curved corridor leading off to the right. There is a door at the end of this passage. The one of the left has a sign MAZE written above it, and the one on the right has a symbol of a pentacle above it. Will you go left ([[turn to 7-&gt;7]]) or try to open the one in the passageway ([[turn to 71-&gt;71]])?</tw-passagedata><tw-passagedata pid="58" name="56" tags="" position="">When you touch the face of the small statue resting in the alcove you feel like you are going to black out. You begin to tremble and even feel severely nauseous. This idol is draining your stamina. Roll two dice and the result you get is the amount you must subtract from your stamina score. Now that you are able to stand back from the alcove what will you do next? Inspect the first one (turn to 88) look over at the third one (turn to 39) or ignore them and rush on (turn to 31)?</tw-passagedata><tw-passagedata pid="59" name="57" tags="" position="">You walk over to the spider and push on it, it goes into the wall. There is a noise behind you and you see the triangle and butterfly come out of place then the spider comes out. You have chosen out of sequence. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="60" name="58" tags="" position="">You walk over to the spider and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The centipede one has come out of the wall, then seconds later the spider comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="61" name="59" tags="" position="">Do you have the word CURSE written in your notes? If so, turn to 13. If not then you are free to turn to 100.</tw-passagedata><tw-passagedata pid="62" name="60" tags="" position="">The door with a cup on it has a short tunnel behind it. You find a giant goblet on the floor filled with a clear liquid: will you drink some (turn to 52) or will you return to the other room (turn to 82)?</tw-passagedata><tw-passagedata pid="63" name="61" tags="" position="">When you prick the doll, you feel a sharp sensation run up your buttock! It hurts so much you can barely stand or walk. Lose 4 stamina points. Which one will you examine now (if any)?
 The first alcove ? Turn to 88.
 The second one ? Turn to 56.
 
@@ -425,7 +470,11 @@ Return to 5.</tw-passagedata><tw-passagedata pid="72" name="70" tags="" position
 There is a door to the left. There are no noises emanating from behind it. Will you open it (turn to 38) or go back and take the right path instead (if you haven't already) (turn to 92)?
 
 If you are done in this section you may return to 73.</tw-passagedata><tw-passagedata pid="73" name="71" tags="" position="">This door is locked and requires a special Ebony Key to open it, if you have this key then turn to the number embossed on it.
-&lt;% /*TODO if ebony key go */ %&gt;
+
+&lt;% if (setup.has(s, 'Ebony Key')) { %&gt;
+  [[Turn to 11-&gt;11]]
+&lt;% } %&gt;
+
 Otherwise, no amount of banging into the door with your shoulder is going to work. You cannot break it down.
 [[Return to 55-&gt;55]].</tw-passagedata><tw-passagedata pid="74" name="72" tags="" position="">Test your luck: if lucky then make a note of this paragraph and turn to 81. If unlucky, nothing happens you carry on and come to a T-junction: to go south (turn to 41) to go north (turn to 48).</tw-passagedata><tw-passagedata pid="75" name="73" tags="" position="">You are in a dark corridor supported by wooden beams and pillars. Every time there is movement (you walking) dirt and dust falls down from the ceiling. This place is unstable but you must explore it in order to advance. Will you go south (turn to 25) will you head north (turn to 85) or return to the room previous this one (turn to 7)?</tw-passagedata><tw-passagedata pid="76" name="74" tags="" position="">You return to the area just in front of the statue. You have done everything and nothing happens. Then there is a loud moan and dirt starts falling down all around. The torches flicker and you fear they might go out. The statue uncrosses its legs and prepares to stand up. You watch in dread as the statue becomes an active golem. It spots you and lowers its eyebrows. It points its six sharp and untarnished swords toward you. Do you possess a MAHOGANY BOW and GOLDEN ARROW? If so, turn to 19. If you do not own this then you will have to fight it as is, turn to 97.</tw-passagedata><tw-passagedata pid="77" name="75" tags="" position="">You go over to the butterfly and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The spider one has come out of the wall, then seconds later the butterfly comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="78" name="76" tags="" position="">You come to a dead end. Now you must test your luck: if you are unlucky, turn to 29. If you are lucky you follow the corridor until you come to the main entrance again. Return to 15.</tw-passagedata><tw-passagedata pid="79" name="77" tags="" position="">Nothing occurs when you take the bow, It's only when you are leaving that something happens. Lightning strikes the area where the bow used to be causing an explosion, knocking you to the floor. What you see next shocks you. A jagged blade comes out of the wall and slices its way down the passage. If you stay in one spot you will be sliced in two. You must dive to the side but your timing is critical. Test your luck, if you are lucky, add a MAHOGANY BOW to your list then turn to 82. If you failed the test, subsequently your bones will join this array of skeletal remains.</tw-passagedata><tw-passagedata pid="80" name="78" tags="" position="">The corridor is short lived; it soon veers to the right then follows along for 40 metres. Then it takes a bend to the right. The corridor comes to a halt at a door. You listen but hear nothing. This would be the north door you are about to enter by. You open the door, and turn to 95.</tw-passagedata><tw-passagedata pid="81" name="79" tags="" position="">It will not budge, and yanking on breaks it off the wall. Scours of large black beetles about the size of your hand come out of the hole you made. They attack you in hordes. You run around the place trying to fend them off but there are just too many of them, when they bite they take out a chunk of your leather armour and soon your flesh. What is left of you is a corpse, lying face down on the floor being ravaged by these hungry insects.</tw-passagedata><tw-passagedata pid="82" name="80" tags="" position="">It tastes like milk. You stand there wondering what might have killed the man. Then it happens to you. You feel a pain your gut and watch as fire breaks forth from your stomach and clothing. Your entire body catches on fire and you burn to death. After your death, the fire goes out.</tw-passagedata><tw-passagedata pid="83" name="81" tags="" position="">You step on something, which embeds into the floor. Somewhere a door has opened. The next time you are asked to go to a secret paragraph turn to 34. 
 
@@ -470,17 +519,49 @@ Seventh ? [[turn to 20-&gt;20]].
 
 If you do not wish to touch the levers you can leave and explore elsewhere, [[turn to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="93" name="91" tags="" position="">The tunnel stretches for some time before you arrive at a familiar junction. Turn to 17.</tw-passagedata><tw-passagedata pid="94" name="92" tags="" position="">There is a door on the right. No sound resides beyond so you open it and walk in to the room. There is a man lying on his face in the middle of the floor. Sitting on an old wooden table is a metal bowl. It is filled with a milky liquid. Will you drink from the bowl, turn to 80. If not, you dump it out and hear thunder rolling high above. You're not certain if there is a storm passing or perhaps dumping out the contents was a wise idea. Either way add a BOWL to your possessions. Now you may leave this place and take the left path (if you haven't already), turn to 70.
 
-If you are done in this section you may return to 73.</tw-passagedata><tw-passagedata pid="95" name="93" tags="" position="">You walk over to the spider and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The triangle one has come out of the wall, then seconds later the spider comes out. You have chosen the sequence incorrectly. [[Return to 99-&gt;99]].</tw-passagedata><tw-passagedata pid="96" name="94" tags="" position="">You walk over to the centipede and press on it, it goes into the wall. You see the triangle and butterfly are still in place - none have come out. It is apparent now that the spider is last. When you push the spider slab a hole forms in the center of the room, it gets wider and wider and soon you see a spiralling staircase below. [[Turn to 4-&gt;4]].</tw-passagedata><tw-passagedata pid="97" name="95" tags="" position="">You open the door and enter a circular room. The dirt littering the floor is soft and loose. As you step ahead, a body bursts through the floor! It has rotten strips of cloth wrapped around its entire body. You can see its blackened mouth and darkened teeth. It claws its way out of the dirt and stands up. You half expect it to run for you but all it does is lift its claws and staggers in your direction rather slowly.
+If you are done in this section you may return to 73.</tw-passagedata><tw-passagedata pid="95" name="93" tags="" position="">You walk over to the spider and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The triangle one has come out of the wall, then seconds later the spider comes out. You have chosen the sequence incorrectly. [[Return to 99-&gt;99]].</tw-passagedata><tw-passagedata pid="96" name="94" tags="" position="">You walk over to the centipede and press on it, it goes into the wall. You see the triangle and butterfly are still in place - none have come out. It is apparent now that the spider is last. When you push the spider slab a hole forms in the center of the room, it gets wider and wider and soon you see a spiralling staircase below. [[Turn to 4-&gt;4]].</tw-passagedata><tw-passagedata pid="97" name="95" tags="" position="">&lt;%
+  setup.prepareFight(s, [{name:'Mummy', skill:9, stamina:6}]);
+%&gt;
+You open the door and enter a circular room. The dirt littering the floor is soft and loose. As you step ahead, a body bursts through the floor! It has rotten strips of cloth wrapped around its entire body. You can see its blackened mouth and darkened teeth. It claws its way out of the dirt and stands up. You half expect it to run for you but all it does is lift its claws and staggers in your direction rather slowly.
 
-MUMMY SKILL 9 STAMINA 6 
+&lt;pre&gt;
++-------+---------+-----------+
+| MUMMY | SKILL 9 | STAMINA 6 |
++-------+---------+-----------+
+&lt;/pre&gt;
 
-If you win, you find nothing else of interest in this room. You may leave by the south door and turn immediately right at the junction (turn to 17) or you can exit via the north door (turn to 43)?</tw-passagedata><tw-passagedata pid="98" name="96" tags="" position="">The dark passage snakes to the right. You come to an image in the dead end of a majestic golden sun with bright rays all around it. It opens it eyes and stares at you. It blinks a few times. Will you ask it for advice (turn to 49) or return to the main room (turn to 82)?</tw-passagedata><tw-passagedata pid="99" name="97" tags="" position="">This creature is made of a solid metal, and your sword will hardly do any damage. But you must knock the six swords from its grasp one at a time. 
+&lt;% if (!setup.defeated(s, 'Mummy')) { %&gt;
+  &lt;%= setup.renderFightRound(s) %&gt;
+&lt;% } %&gt;
 
-TEMPLE GUARDIAN SKILL 12 STAMINA 14 
+If you win, you find nothing else of interest in this room. You may leave by the south door and turn immediately right at the junction (turn to 17) or you can exit via the north door (turn to 43)?
+
+&lt;% if (setup.defeated(s, 'Mummy') { %&gt;
+  [[South door-&gt;17]]
+
+  [[North door-&gt;43]]
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="98" name="96" tags="" position="">The dark passage snakes to the right. You come to an image in the dead end of a majestic golden sun with bright rays all around it. It opens it eyes and stares at you. It blinks a few times. Will you ask it for advice (turn to 49) or return to the main room (turn to 82)?</tw-passagedata><tw-passagedata pid="99" name="97" tags="" position="">&lt;%
+  setup.prepareFight(s, [{name:'Temple Guardian', skill:12, stamina:14}]);
+%&gt;
+This creature is made of a solid metal, and your sword will hardly do any damage. But you must knock the six swords from its grasp one at a time. 
+
+&lt;pre&gt;
++-----------------+----------+------------+
+| TEMPLE GUARDIAN | SKILL 12 | STAMINA 14 |
++-----------------+----------+------------+
+&lt;/pre&gt;
+
+&lt;% if (!setup.defeated(s, 'Temple Guardian')) { %&gt;
+  &lt;%= setup.renderFightRound(s) %&gt;
+&lt;% } %&gt;
 
 Each time you win a round you have severed a sword. If it hits you just once it knocks you across the room causing you to lose 8 stamina points.
 
-If you win this battle, turn to 59.</tw-passagedata><tw-passagedata pid="100" name="98" tags="" position="">You walk over to the triangle and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The spider one has come out of the wall, and then seconds later the triangle comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="101" name="99" tags="" position="">You go over to the triangle and press hard on it until it slides into the wall. Which slab will you push next?
+If you win this battle, turn to 59.
+
+&lt;% if (setup.defeated(s, 'Temple Guardian') { %&gt;
+  [[Turn to 59-&gt;59]]
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="100" name="98" tags="" position="">You walk over to the triangle and push on it, it grinds into the wall and you hear a noise and look over your shoulder. The spider one has come out of the wall, and then seconds later the triangle comes out. You have chosen the sequence incorrectly. [[Return to 40-&gt;40]].</tw-passagedata><tw-passagedata pid="101" name="99" tags="" position="">You go over to the triangle and press hard on it until it slides into the wall. Which slab will you push next?
 
 Spider ? [[Turn to 93-&gt;93]].
 
