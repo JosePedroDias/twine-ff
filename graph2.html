@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>dot</title>
+    <script src="external/viz.js"></script>
+    <script src="external/lite.render.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+
+      body {
+        font-family: sans-serif;
+      }
+
+      svg {
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const options = {
+        engine: 'dot',
+        format: 'svg',
+        files: []
+      };
+      const v = new Viz();
+
+      function draw(dotCode) {
+        v.wrapper
+          .render(dotCode, options)
+          .then((res) => {
+            const parser = new DOMParser();
+            const el = parser.parseFromString(res, 'image/svg+xml')
+              .documentElement;
+            document.body.appendChild(el);
+          })
+          .catch((err) => console.error(err));
+      }
+
+      fetch('TheSleepingDragon.dot')
+        .then((resp) => resp.text())
+        .then(draw);
+    </script>
+  </body>
+</html>

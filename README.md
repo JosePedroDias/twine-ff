@@ -15,6 +15,10 @@ If you lose yourself, take a peek at the graph I'm annotating as I adapt the boo
     choco install ruby
     gem install twee2
 
+## setting up twee2 (on mac)
+
+    gem install twee2
+
 ## creating a book w/ twee2
 
     twee2 build TheSleepingDragon.tw2 TheSleepingDragon.html
